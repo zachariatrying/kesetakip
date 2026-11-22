@@ -1,0 +1,16 @@
+{
+  "name": "KeseTakip — Abonelik & Zam Takipçisi",
+  "short_name": "KeseTakip",
+  "description": "Banka şifresi istemeden aboneliklerini ve yıllık giderini takip et.",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#F6F8F7",
+  "theme_color": "#0D5C43",
+  "icons": [
+    {
+      "src": "store-assets/kesetakip_icon.png",
+      "sizes": "1024x1024",
+      "type": "image/png"
+    }
+  ]
+}
