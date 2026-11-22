@@ -56,7 +56,10 @@ export interface SavingsDeal {
   badge: 'Cashback' | 'Plan İpucu' | 'İş Ortaklığı';
   title: string;
   detail: string;
-  estYearlySaveTry: number;
+  discountRate: number;
+  targetCategories: SubCategory[];
+  actionUrl: string;
+  actionLabel: string;
 }
 
 export const SAVINGS_DEALS: SavingsDeal[] = [
@@ -64,29 +67,41 @@ export const SAVINGS_DEALS: SavingsDeal[] = [
     id: 'deal-cashback',
     badge: 'Cashback',
     title: 'Dijital Kart Cashback İadesi (Papara / Nays / Enpara)',
-    detail: 'Netflix, Spotify ve YouTube ödemelerini dijital cashback kartlarıyla geçirerek aylık %10–%50 arası nakit iade alabilirsin.',
-    estYearlySaveTry: 1200,
+    detail: 'Yayın ve müzik aboneliklerini cashback destekli dijital kartlarla ödeyerek ortalama %20–%50 nakit iade alabilirsin.',
+    discountRate: 0.25,
+    targetCategories: ['Yayın', 'Müzik'],
+    actionUrl: 'https://www.papara.com/cashback',
+    actionLabel: 'Cashback İncele',
   },
   {
     id: 'deal-family',
     badge: 'Plan İpucu',
     title: 'Aile veya Öğrenci Planına Geçiş',
-    detail: 'YouTube Premium Aile (6 kişi) veya Spotify Aile planını ev halkıyla paylaşmak kişi başı maliyeti %55’e kadar düşürür.',
-    estYearlySaveTry: 950,
+    detail: 'YouTube Premium veya Spotify’da Aile/Öğrenci planına geçmek kişi başı maliyeti %40’a kadar düşürür.',
+    discountRate: 0.4,
+    targetCategories: ['Yayın', 'Müzik'],
+    actionUrl: 'https://www.spotify.com/tr/student/',
+    actionLabel: 'Planları Gör',
   },
   {
     id: 'deal-yearly',
     badge: 'Plan İpucu',
     title: 'Yıllık Peşin Ödeme İndirimi',
-    detail: 'Google One, Hepsiburada Premium veya spor salonunda yıllık peşin plan seçmek genellikle 2 ay bedava avantajı sağlar.',
-    estYearlySaveTry: 700,
+    detail: 'Bulut, AI ve alışveriş aboneliklerinde yıllık peşin ödeme seçmek ortalama %16 (~2 ay) tasarruf sağlar.',
+    discountRate: 0.16,
+    targetCategories: ['Bulut & AI', 'Alışveriş'],
+    actionUrl: 'https://one.google.com/about/plans',
+    actionLabel: 'Yıllık Planlar',
   },
   {
     id: 'deal-partner',
     badge: 'İş Ortaklığı',
     title: 'Operatör & Market Paket Birleştirme',
-    detail: 'Turkcell / Vodafone / Türk Telekom tarife hediyelerinde Prime, TV+ veya fizy ücretsiz dahil olabiliyor; çift ödeme yapma.',
-    estYearlySaveTry: 600,
+    detail: 'GSM ve ev interneti tarifelerindeki hediye dijital üyelikleri kullanarak çift ödemeyi önleyebilirsin.',
+    discountRate: 0.15,
+    targetCategories: ['Yaşam', 'Alışveriş'],
+    actionUrl: 'https://www.amazon.com.tr/prime',
+    actionLabel: 'Fırsata Bak',
   },
 ];
 

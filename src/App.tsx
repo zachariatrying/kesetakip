@@ -3,6 +3,7 @@ import {
   BellRing,
   Check,
   Download,
+  ExternalLink,
   Pencil,
   Plus,
   ShieldCheck,
@@ -55,6 +56,22 @@ export default function App() {
   const [editPrice, setEditPrice] = useState('');
   const [editCycle, setEditCycle] = useState<BillingCycle>('monthly');
   const [editDay, setEditDay] = useState('15');
+  const [appliedDealIds, setAppliedDealIds] = useState<string[]>(() => {
+    try {
+      const raw = localStorage.getItem('kesetakip_deals_v1');
+      return raw ? (JSON.parse(raw) as string[]) : [];
+    } catch {
+      return [];
+    }
+  });
+
+  useEffect(() => {
+    try {
+      localStorage.setItem('kesetakip_deals_v1', JSON.stringify(appliedDealIds));
+    } catch {
+      // Ignore
+    }
+  }, [appliedDealIds]);
 
   useEffect(() => {
     try {
@@ -91,10 +108,42 @@ export default function App() {
     () => activeItems.reduce((sum, i) => sum + yearlyEquivalent(i), 0),
     [activeItems]
   );
-  const yearlySaved = useMemo(
+  const yearlySavedFromPaused = useMemo(
     () => pausedItems.reduce((sum, i) => sum + yearlyEquivalent(i), 0),
     [pausedItems]
   );
+
+  const dealSavingsById = useMemo(() => {
+    const map = new Map<string, number>();
+    for (const deal of SAVINGS_DEALS) {
+      const matchingYearly = activeItems
+        .filter((i) => deal.targetCategories.includes(i.category))
+        .reduce((s, i) => s + yearlyEquivalent(i), 0);
+      map.set(deal.id, Math.round(matchingYearly * deal.discountRate));
+    }
+    return map;
+  }, [activeItems]);
+
+  const yearlyDealSaved = useMemo(
+    () => appliedDealIds.reduce((sum, id) => sum + (dealSavingsById.get(id) ?? 0), 0),
+    [appliedDealIds, dealSavingsById]
+  );
+
+  const yearlySaved = yearlySavedFromPaused + yearlyDealSaved;
+
+  const categoryBreakdown = useMemo(() => {
+    const sums = new Map<SubCategory, number>();
+    for (const i of activeItems) {
+      sums.set(i.category, (sums.get(i.category) ?? 0) + monthlyEquivalent(i));
+    }
+    return [...sums.entries()]
+      .sort((a, b) => b[1] - a[1])
+      .map(([cat, val]) => ({
+        category: cat,
+        monthly: val,
+        pct: monthlyTotal > 0 ? Math.round((val / monthlyTotal) * 100) : 0,
+      }));
+  }, [activeItems, monthlyTotal]);
 
   const upcoming7Days = useMemo(() => {
     const today = new Date().getDate();
@@ -291,7 +340,7 @@ export default function App() {
               ₺{yearlySaved.toLocaleString('tr-TR', { maximumFractionDigits: 0 })}
             </div>
             <div className="text-[11px] text-[#92400E] mt-1">
-              {pausedItems.length} iptal denemesi / yıl
+              {pausedItems.length} iptal + {appliedDealIds.length} fırsat / yıl
             </div>
           </div>
 
@@ -527,6 +576,31 @@ export default function App() {
           </section>
         </div>
 
+        {/* Category Breakdown */}
+        {categoryBreakdown.length > 0 && (
+          <section className="rounded-2xl border border-[#DCE5E0] bg-white p-4 space-y-2.5">
+            <h2 className="text-sm font-extrabold text-[#111F19]">Kategori Harcama Dağılımı (Aylık)</h2>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+              {categoryBreakdown.map((row) => (
+                <div key={row.category} className="space-y-1">
+                  <div className="flex items-center justify-between text-xs">
+                    <span className="font-bold text-[#111F19]">{row.category}</span>
+                    <span className="tabular-nums text-[#4B6358]">
+                      ₺{Math.round(row.monthly).toLocaleString('tr-TR')} (%{row.pct})
+                    </span>
+                  </div>
+                  <div className="h-2 w-full rounded-full bg-[#E2EBE6] overflow-hidden">
+                    <div
+                      className="h-full rounded-full bg-[#0D5C43] transition-all duration-300"
+                      style={{ width: `${row.pct}%` }}
+                    />
+                  </div>
+                </div>
+              ))}
+            </div>
+          </section>
+        )}
+
         {/* Savings & Partner Deals Section */}
         <section className="rounded-2xl border border-[#DCE5E0] bg-white p-4 space-y-3">
           <div className="flex flex-wrap items-center justify-between gap-2">
@@ -535,27 +609,65 @@ export default function App() {
               Tasarruf Fırsatları &amp; Cashback Rehberi
             </h2>
             <span className="text-[11px] text-[#64796F]">
-              Şeffaf bilgilendirme · iş ortaklığı / sponsorlu alanlar işaretlidir
+              Listene göre gerçek tasarrufunu hesapla · iş ortaklığı alanları işaretlidir
             </span>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-            {SAVINGS_DEALS.map((deal) => (
-              <article
-                key={deal.id}
-                className="rounded-xl border border-[#E2EBE6] bg-[#F9FBFA] p-3.5 space-y-1.5"
-              >
-                <div className="flex items-center justify-between gap-2">
-                  <span className="rounded-md bg-[#ECFDF5] border border-[#A7F3D0] px-2 py-0.5 text-[10px] font-bold text-[#047857]">
-                    {deal.badge}
-                  </span>
-                  <span className="text-[11px] font-extrabold text-[#0D5C43] tabular-nums">
-                    ~₺{deal.estYearlySaveTry.toLocaleString('tr-TR')}/yıl tasarruf
-                  </span>
-                </div>
-                <h3 className="text-xs font-extrabold text-[#111F19]">{deal.title}</h3>
-                <p className="text-[11px] text-[#4B6358] leading-relaxed">{deal.detail}</p>
-              </article>
-            ))}
+            {SAVINGS_DEALS.map((deal) => {
+              const estSave = dealSavingsById.get(deal.id) ?? 0;
+              const isApplied = appliedDealIds.includes(deal.id);
+              return (
+                <article
+                  key={deal.id}
+                  className={`rounded-xl border p-3.5 space-y-2 transition-colors ${
+                    isApplied
+                      ? 'border-[#0D5C43] bg-[#ECFDF5]/60'
+                      : 'border-[#E2EBE6] bg-[#F9FBFA]'
+                  }`}
+                >
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="rounded-md bg-[#ECFDF5] border border-[#A7F3D0] px-2 py-0.5 text-[10px] font-bold text-[#047857]">
+                      {deal.badge}
+                    </span>
+                    <span className="text-[11px] font-extrabold text-[#0D5C43] tabular-nums">
+                      {estSave > 0
+                        ? `Listende ~₺${estSave.toLocaleString('tr-TR')}/yıl tasarruf`
+                        : 'İlgili abonelik ekleyince hesaplanır'}
+                    </span>
+                  </div>
+                  <h3 className="text-xs font-extrabold text-[#111F19]">{deal.title}</h3>
+                  <p className="text-[11px] text-[#4B6358] leading-relaxed">{deal.detail}</p>
+                  <div className="flex items-center justify-between gap-2 pt-1">
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setAppliedDealIds((prev) =>
+                          prev.includes(deal.id)
+                            ? prev.filter((x) => x !== deal.id)
+                            : [...prev, deal.id]
+                        )
+                      }
+                      className={`rounded-lg px-3 py-1.5 text-[11px] font-bold cursor-pointer ${
+                        isApplied
+                          ? 'bg-[#0D5C43] text-white'
+                          : 'border border-[#0D5C43]/30 bg-white text-[#0D5C43] hover:bg-[#ECFDF5]'
+                      }`}
+                    >
+                      {isApplied ? '✓ Simülatörde Aktif' : 'Simülatöre Ekle'}
+                    </button>
+                    <a
+                      href={deal.actionUrl}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="inline-flex items-center gap-1 text-[11px] font-bold text-[#0D5C43] hover:underline"
+                    >
+                      {deal.actionLabel}
+                      <ExternalLink className="w-3 h-3" />
+                    </a>
+                  </div>
+                </article>
+              );
+            })}
           </div>
         </section>
       </main>
