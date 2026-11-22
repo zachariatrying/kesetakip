@@ -1,16 +1,20 @@
 import { useEffect, useMemo, useState, type FormEvent } from 'react';
 import {
   BellRing,
+  Check,
   Download,
+  Pencil,
   Plus,
   ShieldCheck,
   Sparkles,
+  Tag,
   Trash2,
   TrendingUp,
   Upload,
   X,
 } from 'lucide-react';
 import {
+  SAVINGS_DEALS,
   SUB_CATALOG,
   monthlyEquivalent,
   yearlyEquivalent,
@@ -46,6 +50,11 @@ export default function App() {
   const [billingDay, setBillingDay] = useState('15');
   const [kvkkOpen, setKvkkOpen] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(false);
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editName, setEditName] = useState('');
+  const [editPrice, setEditPrice] = useState('');
+  const [editCycle, setEditCycle] = useState<BillingCycle>('monthly');
+  const [editDay, setEditDay] = useState('15');
 
   useEffect(() => {
     try {
@@ -159,6 +168,28 @@ export default function App() {
 
   const removeItem = (id: string) => {
     setItems((prev) => prev.filter((i) => i.id !== id));
+  };
+
+  const startEdit = (item: SubscriptionItem) => {
+    setEditingId(item.id);
+    setEditName(item.name);
+    setEditPrice(String(item.priceTry));
+    setEditCycle(item.cycle);
+    setEditDay(String(item.billingDay));
+  };
+
+  const saveEdit = (id: string) => {
+    const numPrice = Number(editPrice.replace(',', '.'));
+    const dayNum = Math.min(31, Math.max(1, Math.round(Number(editDay) || 1)));
+    if (!editName.trim() || !Number.isFinite(numPrice) || numPrice <= 0) return;
+    setItems((prev) =>
+      prev.map((i) =>
+        i.id === id
+          ? { ...i, name: editName.trim(), priceTry: numPrice, cycle: editCycle, billingDay: dayNum }
+          : i
+      )
+    );
+    setEditingId(null);
   };
 
   const handleExportJson = () => {
@@ -385,52 +416,148 @@ export default function App() {
                 {items.map((item) => (
                   <div
                     key={item.id}
-                    className={`px-4 py-3 flex items-center justify-between gap-3 ${
+                    className={`px-4 py-3 space-y-2 ${
                       item.active ? 'bg-white' : 'bg-[#FFFBEB]/60 opacity-75'
                     }`}
                   >
-                    <div className="min-w-0 flex-1">
-                      <div className="flex items-center gap-2">
-                        <span className={`text-sm font-bold truncate ${item.active ? 'text-[#111F19]' : 'line-through text-[#64796F]'}`}>
-                          {item.name}
-                        </span>
-                        <span className="rounded bg-[#F1F5F3] px-2 py-0.5 text-[10px] font-bold text-[#0D5C43]">
-                          {item.category}
-                        </span>
+                    {editingId === item.id ? (
+                      <div className="grid grid-cols-2 sm:grid-cols-5 gap-2 items-center">
+                        <input
+                          type="text"
+                          value={editName}
+                          onChange={(e) => setEditName(e.target.value)}
+                          className="col-span-2 rounded-lg border border-[#DCE5E0] px-2.5 py-1.5 text-xs"
+                          placeholder="Plan adı"
+                        />
+                        <input
+                          type="text"
+                          value={editPrice}
+                          onChange={(e) => setEditPrice(e.target.value)}
+                          className="rounded-lg border border-[#DCE5E0] px-2.5 py-1.5 text-xs"
+                          placeholder="Tutar (₺)"
+                        />
+                        <select
+                          value={editCycle}
+                          onChange={(e) => setEditCycle(e.target.value as BillingCycle)}
+                          className="rounded-lg border border-[#DCE5E0] px-2 py-1.5 text-xs"
+                        >
+                          <option value="monthly">Aylık</option>
+                          <option value="yearly">Yıllık</option>
+                        </select>
+                        <div className="flex items-center gap-1">
+                          <input
+                            type="number"
+                            min={1}
+                            max={31}
+                            value={editDay}
+                            onChange={(e) => setEditDay(e.target.value)}
+                            className="w-12 rounded-lg border border-[#DCE5E0] px-2 py-1.5 text-xs"
+                          />
+                          <button
+                            type="button"
+                            onClick={() => saveEdit(item.id)}
+                            className="rounded-lg bg-[#0D5C43] p-1.5 text-white cursor-pointer"
+                            title="Kaydet"
+                          >
+                            <Check className="w-3.5 h-3.5" />
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => setEditingId(null)}
+                            className="rounded-lg border border-[#DCE5E0] p-1.5 text-[#64796F] cursor-pointer"
+                            title="İptal"
+                          >
+                            <X className="w-3.5 h-3.5" />
+                          </button>
+                        </div>
                       </div>
-                      <div className="text-xs text-[#4B6358] mt-0.5 tabular-nums">
-                        ₺{item.priceTry.toLocaleString('tr-TR')} / {item.cycle === 'yearly' ? 'yıl' : 'ay'} ·{' '}
-                        Yıllık ₺{Math.round(yearlyEquivalent(item)).toLocaleString('tr-TR')} · Her ayın {item.billingDay}. günü
-                      </div>
-                    </div>
+                    ) : (
+                      <div className="flex items-center justify-between gap-3">
+                        <div className="min-w-0 flex-1">
+                          <div className="flex items-center gap-2">
+                            <span className={`text-sm font-bold truncate ${item.active ? 'text-[#111F19]' : 'line-through text-[#64796F]'}`}>
+                              {item.name}
+                            </span>
+                            <span className="rounded bg-[#F1F5F3] px-2 py-0.5 text-[10px] font-bold text-[#0D5C43]">
+                              {item.category}
+                            </span>
+                          </div>
+                          <div className="text-xs text-[#4B6358] mt-0.5 tabular-nums">
+                            ₺{item.priceTry.toLocaleString('tr-TR')} / {item.cycle === 'yearly' ? 'yıl' : 'ay'} ·{' '}
+                            Yıllık ₺{Math.round(yearlyEquivalent(item)).toLocaleString('tr-TR')} · Her ayın {item.billingDay}. günü
+                          </div>
+                        </div>
 
-                    <div className="flex items-center gap-2 shrink-0">
-                      <button
-                        type="button"
-                        onClick={() => toggleActive(item.id)}
-                        className={`rounded-lg px-2.5 py-1 text-[11px] font-bold cursor-pointer ${
-                          item.active
-                            ? 'bg-[#ECFDF5] text-[#047857] border border-[#A7F3D0]'
-                            : 'bg-[#FEF3C7] text-[#92400E] border border-[#FDE68A]'
-                        }`}
-                      >
-                        {item.active ? 'Aktif' : 'İptal Sim.'}
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => removeItem(item.id)}
-                        aria-label="Sil"
-                        className="rounded-lg p-1.5 text-[#64796F] hover:text-[#DC2626] cursor-pointer"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </button>
-                    </div>
+                        <div className="flex items-center gap-1.5 shrink-0">
+                          <button
+                            type="button"
+                            onClick={() => startEdit(item)}
+                            aria-label="Planı düzenle"
+                            className="rounded-lg p-1.5 text-[#64796F] hover:text-[#0D5C43] cursor-pointer"
+                            title="Plan / fiyat düzelt"
+                          >
+                            <Pencil className="w-3.5 h-3.5" />
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => toggleActive(item.id)}
+                            className={`rounded-lg px-2.5 py-1 text-[11px] font-bold cursor-pointer ${
+                              item.active
+                                ? 'bg-[#ECFDF5] text-[#047857] border border-[#A7F3D0]'
+                                : 'bg-[#FEF3C7] text-[#92400E] border border-[#FDE68A]'
+                            }`}
+                          >
+                            {item.active ? 'Aktif' : 'İptal Sim.'}
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => removeItem(item.id)}
+                            aria-label="Sil"
+                            className="rounded-lg p-1.5 text-[#64796F] hover:text-[#DC2626] cursor-pointer"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        </div>
+                      </div>
+                    )}
                   </div>
                 ))}
               </div>
             )}
           </section>
         </div>
+
+        {/* Savings & Partner Deals Section */}
+        <section className="rounded-2xl border border-[#DCE5E0] bg-white p-4 space-y-3">
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <h2 className="text-sm font-extrabold text-[#111F19] flex items-center gap-1.5">
+              <Tag className="w-4 h-4 text-[#0D5C43]" />
+              Tasarruf Fırsatları &amp; Cashback Rehberi
+            </h2>
+            <span className="text-[11px] text-[#64796F]">
+              Şeffaf bilgilendirme · iş ortaklığı / sponsorlu alanlar işaretlidir
+            </span>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+            {SAVINGS_DEALS.map((deal) => (
+              <article
+                key={deal.id}
+                className="rounded-xl border border-[#E2EBE6] bg-[#F9FBFA] p-3.5 space-y-1.5"
+              >
+                <div className="flex items-center justify-between gap-2">
+                  <span className="rounded-md bg-[#ECFDF5] border border-[#A7F3D0] px-2 py-0.5 text-[10px] font-bold text-[#047857]">
+                    {deal.badge}
+                  </span>
+                  <span className="text-[11px] font-extrabold text-[#0D5C43] tabular-nums">
+                    ~₺{deal.estYearlySaveTry.toLocaleString('tr-TR')}/yıl tasarruf
+                  </span>
+                </div>
+                <h3 className="text-xs font-extrabold text-[#111F19]">{deal.title}</h3>
+                <p className="text-[11px] text-[#4B6358] leading-relaxed">{deal.detail}</p>
+              </article>
+            ))}
+          </div>
+        </section>
       </main>
 
       <footer className="border-t border-[#DCE5E0] bg-white py-3.5 text-center text-[11px] text-[#4B6358] px-4">
