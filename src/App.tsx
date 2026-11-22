@@ -601,6 +601,46 @@ export default function App() {
           </section>
         )}
 
+        {/* Monthly Renewal Timeline */}
+        {activeItems.length > 0 && (
+          <section className="rounded-2xl border border-[#DCE5E0] bg-white p-4 space-y-2.5">
+            <h2 className="text-sm font-extrabold text-[#111F19]">Aylık Ödeme Takvimi</h2>
+            <div className="flex gap-2 overflow-x-auto pb-1">
+              {[...activeItems]
+                .sort((a, b) => a.billingDay - b.billingDay)
+                .map((item) => {
+                  const today = new Date().getDate();
+                  const daysLeft = (item.billingDay - today + 31) % 31;
+                  return (
+                    <div
+                      key={item.id}
+                      className="shrink-0 rounded-xl border border-[#E2EBE6] bg-[#F9FBFA] px-3 py-2 min-w-[145px]"
+                    >
+                      <div className="flex items-center justify-between gap-2 text-[10px] font-bold">
+                        <span className="text-[#4B6358]">Ayın {item.billingDay}. günü</span>
+                        <span
+                          className={`rounded px-1.5 py-0.5 ${
+                            daysLeft <= 3
+                              ? 'bg-[#FEF2F2] text-[#B91C1C]'
+                              : 'bg-[#ECFDF5] text-[#047857]'
+                          }`}
+                        >
+                          {daysLeft === 0 ? 'Bugün' : `${daysLeft} gün`}
+                        </span>
+                      </div>
+                      <div className="text-xs font-extrabold text-[#111F19] truncate mt-1">
+                        {item.name}
+                      </div>
+                      <div className="text-[11px] font-bold text-[#0D5C43] tabular-nums">
+                        ₺{item.priceTry.toLocaleString('tr-TR')}
+                      </div>
+                    </div>
+                  );
+                })}
+            </div>
+          </section>
+        )}
+
         {/* Savings & Partner Deals Section */}
         <section className="rounded-2xl border border-[#DCE5E0] bg-white p-4 space-y-3">
           <div className="flex flex-wrap items-center justify-between gap-2">
