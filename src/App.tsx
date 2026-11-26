@@ -73,20 +73,6 @@ export default function App() {
     } catch {}
   }, [items]);
 
-  useEffect(() => {
-    try {
-      const sp = new URLSearchParams(window.location.search);
-      const utm_source = sp.get('utm_source');
-      const utm_campaign = sp.get('utm_campaign');
-      if (utm_source || utm_campaign) {
-        localStorage.setItem(
-          'kesetakip_utm_v1',
-          JSON.stringify({ utm_source, utm_campaign, landedAt: new Date().toISOString() })
-        );
-      }
-    } catch {}
-  }, []);
-
   const activeItems = useMemo(() => items.filter((i) => i.active), [items]);
   const pausedItems = useMemo(() => items.filter((i) => !i.active), [items]);
   const monthlyTotal = useMemo(() => activeItems.reduce((sum, i) => sum + monthlyEquivalent(i), 0), [activeItems]);
@@ -210,83 +196,80 @@ export default function App() {
   }, [activeItems]);
 
   return (
-    <div className="min-h-screen bg-[#0B0E0D] text-[#E7EFEA] flex flex-col">
-      {/* Asymmetric Ledger Layout — Zero Solid Sticky Clone Header */}
+    <div className="min-h-screen bg-[#F4F7F5] text-[#0F291E] flex flex-col">
       <main className="mx-auto max-w-6xl w-full flex-1 px-4 sm:px-6 py-6 sm:py-8">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-          {/* LEFT STICKY STATEMENT SLIP */}
-          <aside className="lg:col-span-4 lg:sticky lg:top-6 bg-[#131917] border border-[#1F2925] rounded-xl overflow-hidden">
-            <div className="px-5 py-4 border-b border-dashed border-[#2A3832] flex items-center justify-between gap-3">
+          {/* LEFT STICKY DAYLIGHT BANKNOTE STATEMENT SLIP */}
+          <aside className="lg:col-span-4 lg:sticky lg:top-6 bg-white border border-[#D8E4DD] rounded-2xl shadow-xs overflow-hidden">
+            <div className="px-5 py-4 border-b border-dashed border-[#CBDAD1] flex items-center justify-between gap-3 bg-[#ECFDF5]/60">
               <div className="flex items-center gap-2.5">
                 <img
                   src={`${import.meta.env.BASE_URL}store-assets/kesetakip_icon.png`}
                   alt="KeseTakip"
-                  className="w-8 h-8 rounded-md object-cover border border-[#2A3832]"
+                  className="w-9 h-9 rounded-lg object-cover border border-[#D8E4DD]"
                 />
                 <div>
-                  <h1 className="text-lg font-bold tracking-tight text-white leading-none">KeseTakip</h1>
-                  <span className="font-ledger-mono text-[11px] text-[#8DA196]">Cihaz İçi Abonelik Defteri</span>
+                  <h1 className="text-lg font-bold tracking-tight text-[#0F291E] leading-none">KeseTakip</h1>
+                  <span className="font-ledger-mono text-[11px] text-[#4B6358]">Cihaz İçi Abonelik Defteri</span>
                 </div>
               </div>
               <button
                 type="button"
                 onClick={() => setKvkkOpen(true)}
-                className="p-2 rounded-md border border-[#1F2925] text-[#8DA196] hover:text-[#34D399] hover:border-[#34D399]/50 cursor-pointer"
+                className="p-2 rounded-lg border border-[#D8E4DD] bg-white text-[#4B6358] hover:text-[#059669] cursor-pointer"
                 title="KVKK & Yedek"
               >
                 <ShieldCheck className="w-4 h-4" />
               </button>
             </div>
 
-            {/* Annual Burn Statement */}
-            <div className="px-5 py-5 border-b border-dashed border-[#2A3832] space-y-4">
+            <div className="px-5 py-5 border-b border-dashed border-[#CBDAD1] space-y-4">
               <div>
-                <div className="text-xs text-[#8DA196]">Yıllık Toplam Çıkış</div>
-                <div className="font-ledger-display text-4xl font-bold text-[#34D399] tabular-nums mt-1">
+                <div className="text-xs font-medium text-[#4B6358]">Yıllık Toplam Çıkış</div>
+                <div className="font-ledger-display text-4xl font-bold text-[#059669] tabular-nums mt-1">
                   ₺{yearlyTotal.toLocaleString('tr-TR', { maximumFractionDigits: 0 })}
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-3 pt-2 border-t border-[#1F2925]">
+              <div className="grid grid-cols-2 gap-3 pt-3 border-t border-[#E6EFEA]">
                 <div>
-                  <div className="text-[11px] text-[#8DA196]">Aylık Yük</div>
-                  <div className="font-ledger-mono text-lg font-semibold text-white mt-0.5">
+                  <div className="text-[11px] text-[#4B6358]">Aylık Yük</div>
+                  <div className="font-ledger-mono text-lg font-bold text-[#0F291E] mt-0.5">
                     ₺{monthlyTotal.toLocaleString('tr-TR', { maximumFractionDigits: 0 })}
                   </div>
                 </div>
                 <div>
-                  <div className="text-[11px] text-[#8DA196]">Simüle Tasarruf</div>
-                  <div className="font-ledger-mono text-lg font-semibold text-[#FBBF24] mt-0.5">
+                  <div className="text-[11px] text-[#4B6358]">Simüle Tasarruf</div>
+                  <div className="font-ledger-mono text-lg font-bold text-[#D97706] mt-0.5">
                     ₺{yearlySaved.toLocaleString('tr-TR', { maximumFractionDigits: 0 })}
                   </div>
                 </div>
               </div>
 
-              <div className="flex items-center justify-between text-xs pt-2 border-t border-[#1F2925] text-[#8DA196]">
+              <div className="flex items-center justify-between text-xs pt-3 border-t border-[#E6EFEA] text-[#4B6358]">
                 <span className="flex items-center gap-1.5">
-                  <BellRing className="w-3.5 h-3.5 text-[#34D399]" />
+                  <BellRing className="w-3.5 h-3.5 text-[#059669]" />
                   7 gün içinde {upcoming7Days.length} çekim
                 </span>
                 <button
                   type="button"
                   onClick={() => downloadKeseCardPng(items)}
-                  className="font-ledger-mono text-[#34D399] hover:underline flex items-center gap-1 cursor-pointer"
+                  className="font-ledger-mono font-semibold text-[#059669] hover:underline flex items-center gap-1 cursor-pointer"
                 >
                   <Download className="w-3.5 h-3.5" /> PNG Röntgen
                 </button>
               </div>
             </div>
 
-            {/* Inline Quick-Add Form Inside Slip */}
-            <form onSubmit={handleAddCustom} className="px-5 py-4 space-y-2.5 bg-[#0F1412]">
-              <div className="text-xs font-semibold text-[#E7EFEA]">Yeni Abonelik İşle</div>
+            <form onSubmit={handleAddCustom} className="px-5 py-4 space-y-2.5 bg-[#FAFDFB]">
+              <div className="text-xs font-bold text-[#0F291E]">Yeni Abonelik İşle</div>
               <input
                 type="text"
                 required
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 placeholder="Hizmet adı (ör. YouTube Premium)"
-                className="w-full rounded-md border border-[#1F2925] bg-[#0B0E0D] px-3 py-2 text-xs text-white placeholder:text-[#5B6E64]"
+                className="w-full rounded-lg border border-[#D8E4DD] bg-white px-3 py-2 text-xs text-[#0F291E]"
               />
               <div className="grid grid-cols-2 gap-2">
                 <input
@@ -295,12 +278,12 @@ export default function App() {
                   value={price}
                   onChange={(e) => setPrice(e.target.value)}
                   placeholder="Tutar (₺)"
-                  className="rounded-md border border-[#1F2925] bg-[#0B0E0D] px-3 py-2 text-xs font-ledger-mono text-white placeholder:text-[#5B6E64]"
+                  className="rounded-lg border border-[#D8E4DD] bg-white px-3 py-2 text-xs font-ledger-mono"
                 />
                 <select
                   value={cycle}
                   onChange={(e) => setCycle(e.target.value as BillingCycle)}
-                  className="rounded-md border border-[#1F2925] bg-[#0B0E0D] px-2.5 py-2 text-xs text-white"
+                  className="rounded-lg border border-[#D8E4DD] bg-white px-2.5 py-2 text-xs"
                 >
                   <option value="monthly">Aylık</option>
                   <option value="yearly">Yıllık</option>
@@ -310,7 +293,7 @@ export default function App() {
                 <select
                   value={category}
                   onChange={(e) => setCategory(e.target.value as SubCategory)}
-                  className="rounded-md border border-[#1F2925] bg-[#0B0E0D] px-2.5 py-2 text-xs text-white"
+                  className="rounded-lg border border-[#D8E4DD] bg-white px-2.5 py-2 text-xs"
                 >
                   {CATEGORIES.map((c) => (
                     <option key={c} value={c}>{c}</option>
@@ -323,12 +306,12 @@ export default function App() {
                   value={billingDay}
                   onChange={(e) => setBillingDay(e.target.value)}
                   placeholder="Gün (1-31)"
-                  className="rounded-md border border-[#1F2925] bg-[#0B0E0D] px-3 py-2 text-xs font-ledger-mono text-white"
+                  className="rounded-lg border border-[#D8E4DD] bg-white px-3 py-2 text-xs font-ledger-mono"
                 />
               </div>
               <button
                 type="submit"
-                className="w-full rounded-md bg-[#34D399] py-2 text-xs font-bold text-[#062419] hover:bg-[#6EE7B7] transition-colors cursor-pointer"
+                className="w-full rounded-lg bg-[#059669] py-2.5 text-xs font-bold text-white hover:bg-[#047857] transition-colors cursor-pointer"
               >
                 Deftere Ekle
               </button>
@@ -337,15 +320,14 @@ export default function App() {
 
           {/* RIGHT WORKSPACE */}
           <div className="lg:col-span-8 space-y-7">
-            {/* 1-31 Day Billing Ruler */}
             <section className="space-y-2.5">
               <div className="flex items-center justify-between">
-                <h2 className="text-sm font-bold text-white">Aylık Kesim Cetveli (1–31)</h2>
-                <span className="font-ledger-mono text-[11px] text-[#8DA196]">
+                <h2 className="text-sm font-bold text-[#0F291E]">Aylık Kesim Cetveli (1–31)</h2>
+                <span className="font-ledger-mono text-[11px] text-[#4B6358]">
                   {activeItems.length} aktif kalem
                 </span>
               </div>
-              <div className="grid grid-cols-11 sm:grid-cols-16 gap-1 bg-[#131917] p-2.5 border border-[#1F2925] rounded-lg">
+              <div className="grid grid-cols-11 sm:grid-cols-16 gap-1 bg-white p-2.5 border border-[#D8E4DD] rounded-xl">
                 {Array.from({ length: 31 }, (_, i) => i + 1).map((day) => {
                   const hits = billingDaysMap.get(day) ?? [];
                   const isToday = new Date().getDate() === day;
@@ -355,10 +337,10 @@ export default function App() {
                       title={hits.length ? hits.map((h) => `${h.name} (₺${h.priceTry})`).join(', ') : `${day}. gün`}
                       className={`h-7 rounded flex items-center justify-center font-ledger-mono text-[10px] border ${
                         hits.length > 0
-                          ? 'bg-[#34D399]/20 border-[#34D399] text-[#34D399] font-bold'
+                          ? 'bg-[#D1FAE5] border-[#059669] text-[#047857] font-bold'
                           : isToday
-                          ? 'bg-[#1F2925] border-[#8DA196] text-white'
-                          : 'bg-[#0B0E0D] border-[#1A231F] text-[#5B6E64]'
+                          ? 'bg-[#FEF3C7] border-[#D97706] text-[#92400E] font-bold'
+                          : 'bg-[#F8FAF9] border-[#E6EFEA] text-[#64796F]'
                       }`}
                     >
                       {day}
@@ -368,111 +350,78 @@ export default function App() {
               </div>
             </section>
 
-            {/* Quick Catalog Ticker */}
             <section className="space-y-2">
-              <h2 className="text-sm font-bold text-white">Hızlı Türkiye Abonelik Kataloğu</h2>
+              <h2 className="text-sm font-bold text-[#0F291E]">Hızlı Türkiye Abonelik Kataloğu</h2>
               <div className="flex flex-wrap gap-1.5">
                 {SUB_CATALOG.map((tpl) => (
                   <button
                     key={tpl.id}
                     type="button"
                     onClick={() => handleAddFromCatalog(tpl.id)}
-                    className="inline-flex items-center gap-1.5 rounded border border-[#1F2925] bg-[#131917] px-2.5 py-1 text-xs text-[#E7EFEA] hover:border-[#34D399] cursor-pointer"
+                    className="inline-flex items-center gap-1.5 rounded-lg border border-[#D8E4DD] bg-white px-2.5 py-1.5 text-xs text-[#0F291E] hover:border-[#059669] hover:bg-[#ECFDF5] cursor-pointer"
                   >
-                    <Plus className="w-3 h-3 text-[#34D399]" />
+                    <Plus className="w-3 h-3 text-[#059669]" />
                     <span>{tpl.name}</span>
-                    <span className="font-ledger-mono text-[#8DA196]">₺{tpl.priceTry}</span>
+                    <span className="font-ledger-mono text-[#4B6358]">₺{tpl.priceTry}</span>
                   </button>
                 ))}
               </div>
             </section>
 
-            {/* Hairline Ledger Table */}
-            <section className="border-t border-b border-[#1F2925]">
-              <div className="py-3 flex items-center justify-between border-b border-[#1F2925]">
-                <h2 className="text-sm font-bold text-white">Kayıtlı Kalemler ({items.length})</h2>
-                <span className="text-xs text-[#8DA196]">İptal simülasyonu için duruma dokun</span>
+            <section className="bg-white border border-[#D8E4DD] rounded-xl overflow-hidden">
+              <div className="px-4 py-3 flex items-center justify-between border-b border-[#D8E4DD] bg-[#FAFDFB]">
+                <h2 className="text-sm font-bold text-[#0F291E]">Kayıtlı Kalemler ({items.length})</h2>
+                <span className="text-xs text-[#4B6358]">İptal simülasyonu için duruma dokun</span>
               </div>
               {items.length === 0 ? (
-                <div className="py-8 text-center text-xs text-[#8DA196]">
+                <div className="p-8 text-center text-xs text-[#4B6358]">
                   Defter boş. Sol panelden veya katalogdan abonelik ekleyebilirsin.
                 </div>
               ) : (
-                <div className="divide-y divide-[#1F2925]">
+                <div className="divide-y divide-[#E6EFEA]">
                   {items.map((item) => (
-                    <div key={item.id} className={`py-3 ${item.active ? '' : 'opacity-60'}`}>
+                    <div key={item.id} className={`px-4 py-3 ${item.active ? '' : 'bg-amber-50/50 opacity-75'}`}>
                       {editingId === item.id ? (
                         <div className="grid grid-cols-2 sm:grid-cols-5 gap-2 items-center">
-                          <input
-                            type="text"
-                            value={editName}
-                            onChange={(e) => setEditName(e.target.value)}
-                            className="col-span-2 rounded border border-[#2A3832] bg-[#131917] px-2.5 py-1.5 text-xs text-white"
-                          />
-                          <input
-                            type="text"
-                            value={editPrice}
-                            onChange={(e) => setEditPrice(e.target.value)}
-                            className="rounded border border-[#2A3832] bg-[#131917] px-2.5 py-1.5 text-xs font-ledger-mono text-white"
-                          />
-                          <select
-                            value={editCycle}
-                            onChange={(e) => setEditCycle(e.target.value as BillingCycle)}
-                            className="rounded border border-[#2A3832] bg-[#131917] px-2 py-1.5 text-xs text-white"
-                          >
+                          <input type="text" value={editName} onChange={(e) => setEditName(e.target.value)} className="col-span-2 rounded border border-[#D8E4DD] px-2.5 py-1.5 text-xs" />
+                          <input type="text" value={editPrice} onChange={(e) => setEditPrice(e.target.value)} className="rounded border border-[#D8E4DD] px-2.5 py-1.5 text-xs font-ledger-mono" />
+                          <select value={editCycle} onChange={(e) => setEditCycle(e.target.value as BillingCycle)} className="rounded border border-[#D8E4DD] px-2 py-1.5 text-xs">
                             <option value="monthly">Aylık</option>
                             <option value="yearly">Yıllık</option>
                           </select>
                           <div className="flex items-center gap-1">
-                            <input
-                              type="number"
-                              min={1}
-                              max={31}
-                              value={editDay}
-                              onChange={(e) => setEditDay(e.target.value)}
-                              className="w-12 rounded border border-[#2A3832] bg-[#131917] px-2 py-1.5 text-xs font-ledger-mono text-white"
-                            />
-                            <button type="button" onClick={() => saveEdit(item.id)} className="rounded bg-[#34D399] p-1.5 text-[#062419] cursor-pointer">
-                              <Check className="w-3.5 h-3.5" />
-                            </button>
-                            <button type="button" onClick={() => setEditingId(null)} className="rounded border border-[#2A3832] p-1.5 text-[#8DA196] cursor-pointer">
-                              <X className="w-3.5 h-3.5" />
-                            </button>
+                            <input type="number" min={1} max={31} value={editDay} onChange={(e) => setEditDay(e.target.value)} className="w-12 rounded border border-[#D8E4DD] px-2 py-1.5 text-xs font-ledger-mono" />
+                            <button type="button" onClick={() => saveEdit(item.id)} className="rounded bg-[#059669] p-1.5 text-white cursor-pointer"><Check className="w-3.5 h-3.5" /></button>
+                            <button type="button" onClick={() => setEditingId(null)} className="rounded border border-[#D8E4DD] p-1.5 text-[#4B6358] cursor-pointer"><X className="w-3.5 h-3.5" /></button>
                           </div>
                         </div>
                       ) : (
                         <div className="flex items-center justify-between gap-3">
                           <div className="min-w-0 flex-1">
                             <div className="flex items-center gap-2">
-                              <span className={`text-sm font-semibold truncate ${item.active ? 'text-white' : 'line-through text-[#8DA196]'}`}>
+                              <span className={`text-sm font-semibold truncate ${item.active ? 'text-[#0F291E]' : 'line-through text-[#4B6358]'}`}>
                                 {item.name}
                               </span>
-                              <span className="font-ledger-mono text-[10px] px-1.5 py-0.5 rounded bg-[#131917] border border-[#1F2925] text-[#8DA196]">
+                              <span className="font-ledger-mono text-[10px] px-1.5 py-0.5 rounded bg-[#F4F7F5] border border-[#D8E4DD] text-[#4B6358]">
                                 {item.category}
                               </span>
                             </div>
-                            <div className="font-ledger-mono text-xs text-[#8DA196] mt-0.5">
+                            <div className="font-ledger-mono text-xs text-[#4B6358] mt-0.5">
                               ₺{item.priceTry.toLocaleString('tr-TR')} / {item.cycle === 'yearly' ? 'yıl' : 'ay'} · Yıllık ₺{Math.round(yearlyEquivalent(item)).toLocaleString('tr-TR')} · {item.billingDay}. gün
                             </div>
                           </div>
                           <div className="flex items-center gap-1.5 shrink-0">
-                            <button type="button" onClick={() => startEdit(item)} className="p-1.5 text-[#8DA196] hover:text-white cursor-pointer">
-                              <Pencil className="w-3.5 h-3.5" />
-                            </button>
+                            <button type="button" onClick={() => startEdit(item)} className="p-1.5 text-[#4B6358] hover:text-[#059669] cursor-pointer"><Pencil className="w-3.5 h-3.5" /></button>
                             <button
                               type="button"
                               onClick={() => toggleActive(item.id)}
-                              className={`rounded px-2.5 py-1 font-ledger-mono text-[11px] font-semibold cursor-pointer ${
-                                item.active
-                                  ? 'bg-[#34D399]/15 text-[#34D399] border border-[#34D399]/30'
-                                  : 'bg-[#FBBF24]/15 text-[#FBBF24] border border-[#FBBF24]/30'
+                              className={`rounded-md px-2.5 py-1 font-ledger-mono text-[11px] font-semibold cursor-pointer ${
+                                item.active ? 'bg-[#ECFDF5] text-[#047857] border border-[#A7F3D0]' : 'bg-[#FEF3C7] text-[#92400E] border border-[#FDE68A]'
                               }`}
                             >
                               {item.active ? 'Aktif' : 'İptal Sim.'}
                             </button>
-                            <button type="button" onClick={() => removeItem(item.id)} className="p-1.5 text-[#8DA196] hover:text-rose-400 cursor-pointer">
-                              <Trash2 className="w-4 h-4" />
-                            </button>
+                            <button type="button" onClick={() => removeItem(item.id)} className="p-1.5 text-[#4B6358] hover:text-rose-600 cursor-pointer"><Trash2 className="w-4 h-4" /></button>
                           </div>
                         </div>
                       )}
@@ -482,21 +431,18 @@ export default function App() {
               )}
             </section>
 
-            {/* Category Breakdown */}
             {categoryBreakdown.length > 0 && (
-              <section className="space-y-2.5">
-                <h2 className="text-sm font-bold text-white">Kategori Dağılımı</h2>
+              <section className="bg-white border border-[#D8E4DD] rounded-xl p-4 space-y-2.5">
+                <h2 className="text-sm font-bold text-[#0F291E]">Kategori Dağılımı</h2>
                 <div className="grid sm:grid-cols-2 gap-3">
                   {categoryBreakdown.map((row) => (
                     <div key={row.category} className="space-y-1">
                       <div className="flex justify-between text-xs">
-                        <span className="text-[#E7EFEA]">{row.category}</span>
-                        <span className="font-ledger-mono text-[#8DA196]">
-                          ₺{Math.round(row.monthly).toLocaleString('tr-TR')} (%{row.pct})
-                        </span>
+                        <span className="font-medium">{row.category}</span>
+                        <span className="font-ledger-mono text-[#4B6358]">₺{Math.round(row.monthly).toLocaleString('tr-TR')} (%{row.pct})</span>
                       </div>
-                      <div className="h-1.5 w-full bg-[#1F2925] overflow-hidden">
-                        <div className="h-full bg-[#34D399]" style={{ width: `${row.pct}%` }} />
+                      <div className="h-2 w-full bg-[#E6EFEA] rounded-full overflow-hidden">
+                        <div className="h-full bg-[#059669] rounded-full" style={{ width: `${row.pct}%` }} />
                       </div>
                     </div>
                   ))}
@@ -504,44 +450,38 @@ export default function App() {
               </section>
             )}
 
-            {/* Savings Deals */}
-            <section className="space-y-3">
-              <div className="flex items-center justify-between">
-                <h2 className="text-sm font-bold text-white flex items-center gap-1.5">
-                  <Tag className="w-4 h-4 text-[#34D399]" /> Cashback &amp; Tasarruf Rehberi
-                </h2>
+            <section className="bg-white border border-[#D8E4DD] rounded-xl overflow-hidden">
+              <div className="px-4 py-3 border-b border-[#D8E4DD] bg-[#FAFDFB] flex items-center gap-1.5">
+                <Tag className="w-4 h-4 text-[#059669]" />
+                <h2 className="text-sm font-bold text-[#0F291E]">Cashback &amp; Tasarruf Rehberi</h2>
               </div>
-              <div className="divide-y divide-[#1F2925] border-y border-[#1F2925]">
+              <div className="divide-y divide-[#E6EFEA]">
                 {SAVINGS_DEALS.map((deal) => {
                   const estSave = dealSavingsById.get(deal.id) ?? 0;
                   const isApplied = appliedDealIds.includes(deal.id);
                   return (
-                    <div key={deal.id} className="py-3 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                    <div key={deal.id} className="px-4 py-3 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                       <div className="space-y-1">
                         <div className="flex items-center gap-2">
-                          <span className="font-ledger-mono text-[10px] px-1.5 py-0.5 rounded bg-[#131917] border border-[#34D399]/40 text-[#34D399]">
+                          <span className="font-ledger-mono text-[10px] px-1.5 py-0.5 rounded bg-[#ECFDF5] border border-[#A7F3D0] text-[#047857]">
                             {deal.badge}
                           </span>
-                          <span className="text-xs font-bold text-white">{deal.title}</span>
+                          <span className="text-xs font-bold text-[#0F291E]">{deal.title}</span>
                         </div>
-                        <p className="text-xs text-[#8DA196]">{deal.detail}</p>
+                        <p className="text-xs text-[#4B6358]">{deal.detail}</p>
                       </div>
                       <div className="flex items-center gap-2 shrink-0">
-                        <span className="font-ledger-mono text-xs text-[#FBBF24]">
-                          {estSave > 0 ? `~₺${estSave}/yıl` : '—'}
-                        </span>
+                        <span className="font-ledger-mono text-xs font-bold text-[#D97706]">{estSave > 0 ? `~₺${estSave}/yıl` : '—'}</span>
                         <button
                           type="button"
-                          onClick={() =>
-                            setAppliedDealIds((prev) => (prev.includes(deal.id) ? prev.filter((x) => x !== deal.id) : [...prev, deal.id]))
-                          }
-                          className={`rounded px-2.5 py-1 text-xs font-semibold cursor-pointer ${
-                            isApplied ? 'bg-[#34D399] text-[#062419]' : 'border border-[#2A3832] text-[#E7EFEA]'
+                          onClick={() => setAppliedDealIds((prev) => (prev.includes(deal.id) ? prev.filter((x) => x !== deal.id) : [...prev, deal.id]))}
+                          className={`rounded-md px-2.5 py-1 text-xs font-semibold cursor-pointer ${
+                            isApplied ? 'bg-[#059669] text-white' : 'border border-[#D8E4DD] text-[#0F291E]'
                           }`}
                         >
                           {isApplied ? 'Simülatörde' : 'Ekle'}
                         </button>
-                        <a href={deal.actionUrl} target="_blank" rel="noreferrer" className="p-1.5 text-[#8DA196] hover:text-white">
+                        <a href={deal.actionUrl} target="_blank" rel="noreferrer" className="p-1.5 text-[#4B6358] hover:text-[#059669]">
                           <ExternalLink className="w-3.5 h-3.5" />
                         </a>
                       </div>
@@ -554,35 +494,33 @@ export default function App() {
         </div>
       </main>
 
-      <footer className="border-t border-[#1F2925] py-4 text-center text-xs text-[#8DA196] px-4">
+      <footer className="border-t border-[#D8E4DD] bg-white py-4 text-center text-xs text-[#4B6358] px-4">
         KeseTakip banka şifresi istemez; tüm veriler yalnızca cihazınızda tutulur.
       </footer>
 
       {kvkkOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4">
-          <div className="w-full max-w-md rounded-xl border border-[#2A3832] bg-[#131917] p-5 space-y-4">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/45 p-4">
+          <div className="w-full max-w-md rounded-2xl border border-[#D8E4DD] bg-white p-5 space-y-4 shadow-xl">
             <div className="flex items-center justify-between">
-              <h2 className="text-base font-bold text-white">KVKK &amp; Veri Kontrolü</h2>
-              <button type="button" onClick={() => setKvkkOpen(false)} className="p-1 text-[#8DA196] cursor-pointer">
-                <X className="w-4 h-4" />
-              </button>
+              <h2 className="text-base font-bold text-[#0F291E]">KVKK &amp; Veri Kontrolü</h2>
+              <button type="button" onClick={() => setKvkkOpen(false)} className="p-1 text-[#4B6358] cursor-pointer"><X className="w-4 h-4" /></button>
             </div>
-            <p className="text-xs text-[#8DA196]">Kayıtlar sunucuya gitmez; yalnızca tarayıcı hafızasında tutulur.</p>
+            <p className="text-xs text-[#4B6358]">Kayıtlar sunucuya gitmez; yalnızca tarayıcı hafızasında tutulur.</p>
             <div className="grid grid-cols-2 gap-2">
-              <button type="button" onClick={handleExportJson} className="inline-flex items-center justify-center gap-1.5 rounded-md border border-[#2A3832] py-2 text-xs font-semibold text-white cursor-pointer">
+              <button type="button" onClick={handleExportJson} className="inline-flex items-center justify-center gap-1.5 rounded-lg border border-[#D8E4DD] py-2 text-xs font-semibold cursor-pointer">
                 <Download className="w-3.5 h-3.5" /> JSON İndir
               </button>
-              <label className="inline-flex items-center justify-center gap-1.5 rounded-md border border-[#2A3832] py-2 text-xs font-semibold text-white cursor-pointer">
+              <label className="inline-flex items-center justify-center gap-1.5 rounded-lg border border-[#D8E4DD] py-2 text-xs font-semibold cursor-pointer">
                 <Upload className="w-3.5 h-3.5" /> JSON Yükle
                 <input type="file" accept="application/json" className="hidden" onChange={(e) => handleImportJson(e.target.files?.[0])} />
               </label>
             </div>
             {!confirmDelete ? (
-              <button type="button" onClick={() => setConfirmDelete(true)} className="w-full rounded-md border border-rose-800 bg-rose-950/40 py-2 text-xs font-bold text-rose-300 cursor-pointer">
+              <button type="button" onClick={() => setConfirmDelete(true)} className="w-full rounded-lg border border-rose-300 bg-rose-50 py-2 text-xs font-bold text-rose-700 cursor-pointer">
                 Tüm Verileri Kalıcı Sil
               </button>
             ) : (
-              <button type="button" onClick={handlePurgeAll} className="w-full rounded-md bg-rose-600 py-2 text-xs font-bold text-white cursor-pointer">
+              <button type="button" onClick={handlePurgeAll} className="w-full rounded-lg bg-rose-600 py-2 text-xs font-bold text-white cursor-pointer">
                 Eminim, Tüm Kayıtları Sil
               </button>
             )}
