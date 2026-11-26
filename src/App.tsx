@@ -494,8 +494,16 @@ export default function App() {
         </div>
       </main>
 
-      <footer className="border-t border-[#D8E4DD] bg-white py-4 text-center text-xs text-[#4B6358] px-4">
-        KeseTakip banka şifresi istemez; tüm veriler yalnızca cihazınızda tutulur.
+      <footer className="border-t border-[#D8E4DD] bg-white py-4 text-center text-xs text-[#4B6358] px-4 space-y-1">
+        <p>
+          KeseTakip banka şifresi istemez; tüm veriler yalnızca cihazınızda tutulur. Finansal/yatırım danışmanlığı
+          değildir; örnek marka adları yalnızca kendi gider takibiniz içindir.
+        </p>
+        <p>
+          <a href="./privacy.html" className="underline font-bold text-[#059669]">
+            Gizlilik &amp; KVKK Politikası
+          </a>
+        </p>
       </footer>
 
       {kvkkOpen && (
