@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState, type FormEvent } from 'react';
+import { GuideWidget } from './components/GuideWidget';
 import {
   BellRing,
   Check,
@@ -535,6 +536,7 @@ export default function App() {
           </div>
         </div>
       )}
+      <GuideWidget />
     </div>
   );
 }
